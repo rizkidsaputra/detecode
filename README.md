@@ -108,6 +108,13 @@ The model is not stored inside this GitHub repository because model weights are 
 https://huggingface.co/dunguasli/detecode-model-v1
 ```
 
+Install it into the expected local path:
+
+```powershell
+mkdir models
+git clone https://huggingface.co/dunguasli/detecode-model-v1 .\models\codebert-webvuln
+```
+
 Place it locally like this:
 
 ```text
