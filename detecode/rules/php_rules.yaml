@@ -1,0 +1,107 @@
+rules:
+  - id: php-sql-user-input
+    languages: [php]
+    severity: ERROR
+    message: User input reaches SQL query construction. Use prepared statements/parameter binding.
+    metadata:
+      cwe: CWE-89
+      name: SQL Injection
+      confidence: 0.93
+    patterns:
+      - pattern-either:
+          - pattern: mysqli_query(..., $_GET[...])
+          - pattern: mysqli_query(..., $_POST[...])
+          - pattern: mysql_query($_GET[...])
+          - pattern: mysql_query($_POST[...])
+          - pattern: $DB->query($_GET[...])
+          - pattern: $DB->query($_POST[...])
+
+  - id: php-xss-echo-input
+    languages: [php]
+    severity: WARNING
+    message: Raw user input is rendered to the response. Encode with htmlspecialchars or a template escaper.
+    metadata:
+      cwe: CWE-79
+      name: Cross-Site Scripting
+      confidence: 0.88
+    patterns:
+      - pattern-either:
+          - pattern: echo $_GET[...];
+          - pattern: echo $_POST[...];
+          - pattern: print $_GET[...];
+          - pattern: print $_POST[...];
+
+  - id: php-command-injection
+    languages: [php]
+    severity: ERROR
+    message: User input reaches OS command execution. Avoid shell calls or strictly allowlist arguments.
+    metadata:
+      cwe: CWE-78
+      name: OS Command Injection
+      confidence: 0.94
+    patterns:
+      - pattern-either:
+          - pattern: system($_GET[...])
+          - pattern: system($_POST[...])
+          - pattern: exec($_GET[...])
+          - pattern: exec($_POST[...])
+          - pattern: shell_exec($_GET[...])
+          - pattern: shell_exec($_POST[...])
+
+  - id: php-path-traversal
+    languages: [php]
+    severity: ERROR
+    message: User input controls a filesystem path. Normalize and restrict to an allowlisted base directory.
+    metadata:
+      cwe: CWE-22
+      name: Path Traversal
+      confidence: 0.85
+    patterns:
+      - pattern-either:
+          - pattern: file_get_contents($_GET[...])
+          - pattern: file_get_contents($_POST[...])
+          - pattern: readfile($_GET[...])
+          - pattern: readfile($_POST[...])
+          - pattern: fopen($_GET[...], ...)
+          - pattern: fopen($_POST[...], ...)
+
+  - id: php-code-injection
+    languages: [php]
+    severity: ERROR
+    message: User input reaches dynamic code execution. Remove eval/assert for untrusted input.
+    metadata:
+      cwe: CWE-94
+      name: Code Injection
+      confidence: 0.96
+    pattern-either:
+      - pattern: eval($_GET[...])
+      - pattern: eval($_POST[...])
+      - pattern: assert($_GET[...])
+      - pattern: assert($_POST[...])
+
+  - id: php-file-include-input
+    languages: [php]
+    severity: ERROR
+    message: User input controls include/require target. Use static includes or strict allowlists.
+    metadata:
+      cwe: CWE-98
+      name: PHP File Inclusion
+      confidence: 0.93
+    pattern-either:
+      - pattern: include $_GET[...]
+      - pattern: include $_POST[...]
+      - pattern: require $_GET[...]
+      - pattern: require $_POST[...]
+
+  - id: php-insecure-deserialization
+    languages: [php]
+    severity: ERROR
+    message: Untrusted data reaches unserialize. Use JSON or allowed_classes=false with strict validation.
+    metadata:
+      cwe: CWE-502
+      name: Insecure Deserialization
+      confidence: 0.95
+    pattern-either:
+      - pattern: unserialize($_GET[...])
+      - pattern: unserialize($_POST[...])
+      - pattern: unserialize($_COOKIE[...])

@@ -1,0 +1,84 @@
+rules:
+  - id: js-sql-user-input
+    languages: [javascript, typescript]
+    severity: ERROR
+    message: User input appears concatenated into a SQL query. Use parameterized queries.
+    metadata:
+      cwe: CWE-89
+      name: SQL Injection
+      confidence: 0.90
+    patterns:
+      - pattern-either:
+          - pattern: $DB.query("..." + req.query.$X)
+          - pattern: $DB.query("..." + req.body.$X)
+          - pattern: $DB.execute("..." + req.query.$X)
+          - pattern: $DB.execute("..." + req.body.$X)
+
+  - id: js-xss-innerhtml
+    languages: [javascript, typescript]
+    severity: WARNING
+    message: Untrusted data is assigned to HTML. Prefer textContent or sanitize first.
+    metadata:
+      cwe: CWE-79
+      name: Cross-Site Scripting
+      confidence: 0.84
+    pattern-either:
+      - pattern: $EL.innerHTML = location.$X
+      - pattern: $EL.innerHTML = document.URL
+      - pattern: $EL.outerHTML = location.$X
+
+  - id: js-command-injection
+    languages: [javascript, typescript]
+    severity: ERROR
+    message: User input reaches child process execution. Avoid shell mode and validate arguments.
+    metadata:
+      cwe: CWE-78
+      name: OS Command Injection
+      confidence: 0.90
+    pattern-either:
+      - pattern: exec(req.query.$X)
+      - pattern: exec(req.body.$X)
+      - pattern: execSync(req.query.$X)
+      - pattern: execSync(req.body.$X)
+
+  - id: js-path-traversal
+    languages: [javascript, typescript]
+    severity: ERROR
+    message: User input controls a filesystem path. Normalize and restrict to an allowlisted base directory.
+    metadata:
+      cwe: CWE-22
+      name: Path Traversal
+      confidence: 0.85
+    pattern-either:
+      - pattern: fs.readFile(req.query.$X, ...)
+      - pattern: fs.readFileSync(req.query.$X, ...)
+      - pattern: res.sendFile(req.query.$X)
+      - pattern: res.sendFile(req.body.$X)
+
+  - id: js-code-injection
+    languages: [javascript, typescript]
+    severity: ERROR
+    message: User input reaches dynamic code execution. Avoid eval/Function for untrusted input.
+    metadata:
+      cwe: CWE-94
+      name: Code Injection
+      confidence: 0.94
+    pattern-either:
+      - pattern: eval(req.query.$X)
+      - pattern: eval(req.body.$X)
+      - pattern: Function(req.query.$X)
+      - pattern: Function(req.body.$X)
+
+  - id: js-ssrf
+    languages: [javascript, typescript]
+    severity: ERROR
+    message: User input controls an outbound request URL. Validate destination and block private networks.
+    metadata:
+      cwe: CWE-918
+      name: Server-Side Request Forgery
+      confidence: 0.76
+    pattern-either:
+      - pattern: fetch(req.query.$X)
+      - pattern: fetch(req.body.$X)
+      - pattern: axios.get(req.query.$X)
+      - pattern: axios.post(req.body.$X, ...)
