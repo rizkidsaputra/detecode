@@ -204,7 +204,3 @@ Minimal smoke test:
 ```powershell
 python -m detecode scan .\tests\samples --engine local --format text
 ```
-
-## License
-
-This project is a study group prototype for cybersecurity and AI learning.
